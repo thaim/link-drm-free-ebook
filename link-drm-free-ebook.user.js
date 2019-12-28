@@ -39,7 +39,6 @@
   // DRMフリー本が見付かったらDOMを更新する
 
   var ulMediaMatrix = document.getElementById('tmmSwatches').firstElementChild;
-  // FIXME: 現在は固定でOreillyの書籍のISBNを付与
   var liEbook = createEBookElement(bookDetail);
   ulMediaMatrix.appendChild(liEbook);
 })();
@@ -93,7 +92,6 @@ function createEBookElement(bookDetail) {
 
 /**
  * 指定のISBNに対するlink要素を作成する
- * FIXME: 現在は固定でOreillyのサイトへのリンクを作成
  * @param bookDetail リンク対象の書籍情報詳細
  */
 function createLinkElement(bookDetail) {
