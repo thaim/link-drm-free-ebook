@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Link DRM free ebook
 // @namespace    http://github.com/thaim/link-drm-free-ebook
-// @version      0.1
+// @version      0.2
 // @description  UserScript to add a link to DRM free ebook site from amazon.com
 // @author       thaim
 // @match        https://www.amazon.co.jp/*
@@ -17,15 +17,31 @@
   }
 
   // 対象の書籍情報を取得
-  var bookDetail = document.getElementById('productDetailsTable');
+  var bookTable = document.getElementById('detail_bullets_id');
+  // 現在開いているのが電子書籍のページの場合は紙書籍のページ情報を取得して渡す
+  if (document.getElementById('dp').classList.contains('ebooks')) {
+    let url = document.getElementById('tmmSwatches').getElementsByTagName('li')[1].getElementsByTagName('a')[0].href;
+
+    let client = new XMLHttpRequest();
+    client.open("GET", url, false);
+    client.send(null);
+    if (client.readyState == 4 && client.status == 200) {
+      var domparser = new DOMParser();
+      bookTable = domparser.parseFromString(client.responseText, 'text/html').getElementById('detail_bullets_id');
+    }
+  }
+
+  // var bookDescription = retreiveBook(document.getElementById('productDetailsTable'));
+  var bookDescription = retreiveBook(bookTable);
 
   // 書籍情報からDRMフリー本を探す
+  var bookDetail = searchBook(bookDescription)
 
   // DRMフリー本が見付かったらDOMを更新する
 
   var ulMediaMatrix = document.getElementById('tmmSwatches').firstElementChild;
   // FIXME: 現在は固定でOreillyの書籍のISBNを付与
-  var liEbook = createEBookElement('9784873118956');
+  var liEbook = createEBookElement(bookDetail);
   ulMediaMatrix.appendChild(liEbook);
 })();
 
@@ -50,7 +66,7 @@ function isBook(page) {
 /**
  * amazonの書籍種類別のBoxとしてDRMフリーへのリンクを追加する
  */
-function createEBookElement(isbn) {
+function createEBookElement(bookDetail) {
   var liEbook = document.createElement('li');
   liEbook.className = 'swatchElement unselected resizedSwatchElement';
   liEbook.setAttribute('data-width', '120');
@@ -66,7 +82,7 @@ function createEBookElement(isbn) {
   var spanInner = document.createElement('span');
   spanInner.className = 'a-button-inner';
 
-  var link = createLinkElement(isbn);
+  var link = createLinkElement(bookDetail);
 
   spanInner.appendChild(link);
   spanButton.appendChild(spanInner);
@@ -79,12 +95,12 @@ function createEBookElement(isbn) {
 /**
  * 指定のISBNに対するlink要素を作成する
  * FIXME: 現在は固定でOreillyのサイトへのリンクを作成
- * @param isbn リンク対象のISBN
+ * @param bookDetail リンク対象の書籍情報詳細
  */
-function createLinkElement(isbn) {
+function createLinkElement(bookDetail) {
   var link = document.createElement('a');
   link.className = 'a-button-text';
-  link.setAttribute('href', 'http://www.oreilly.co.jp/books/' + isbn + '/');
+  link.setAttribute('href', 'http://www.oreilly.co.jp/books/' + bookDetail.isbn13 + '/');
   link.setAttribute('role', 'button');
   link.setAttribute('target', '_blank');
 
@@ -104,4 +120,27 @@ function createLinkElement(isbn) {
   link.appendChild(secondary);
 
   return link;
+}
+
+function retreiveBook(table) {
+  var detail = [];
+
+  var liList = table.getElementsByTagName('li');
+  detail.publisher = liList[1].firstChild.nextSibling.textContent;
+  detail.isbn10 = liList[3].firstChild.nextSibling.textContent;
+  detail.isbn13 = liList[4].firstChild.nextSibling.textContent.replace(/\s|-/g,'');
+  detail.date = liList[5].firstChild.nextSibling.textContent;
+
+  return detail;
+}
+
+/**
+ * Amazonの書籍情報からDRMフリーな書籍を探す
+ */
+function searchBook(bookDetail) {
+  var bookInfo = [];
+
+  bookInfo.isbn13 = bookDetail.isbn13;
+
+  return bookInfo;
 }
