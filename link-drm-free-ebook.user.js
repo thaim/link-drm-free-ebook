@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Link DRM free ebook
 // @namespace    http://github.com/thaim/link-drm-free-ebook
-// @version      0.3
+// @version      0.3.1
 // @description  UserScript to add a link to DRM free ebook site from amazon.com
 // @author       thaim
 // @match        https://www.amazon.co.jp/*
@@ -69,8 +69,8 @@ function isBook(page) {
 function createEBookElement(bookDetail) {
   var liEbook = document.createElement('li');
   liEbook.className = 'swatchElement unselected resizedSwatchElement';
-  liEbook.setAttribute('data-width', '120');
-  liEbook.setAttribute('style', 'width: 120px;');
+  liEbook.setAttribute('data-width', '140');
+  liEbook.setAttribute('style', 'width: 140px;');
   liEbook.setAttribute('id', 'drm-free-link');
 
   var spanItem = document.createElement('span');
