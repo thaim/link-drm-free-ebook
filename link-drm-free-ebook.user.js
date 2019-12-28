@@ -99,7 +99,7 @@ function createEBookElement(bookDetail) {
 function createLinkElement(bookDetail) {
   var link = document.createElement('a');
   link.className = 'a-button-text';
-  link.setAttribute('href', 'http://www.oreilly.co.jp/books/' + bookDetail.isbn13 + '/');
+  link.setAttribute('href', bookDetail.url);
   link.setAttribute('role', 'button');
   link.setAttribute('target', '_blank');
 
@@ -125,8 +125,10 @@ function retreiveBook(table) {
   var detail = [];
 
   var liList = table.getElementsByTagName('li');
-  // 版情報が;区切りで挿入されている場合は無視する
+  // 版情報が;区切りで挿入されている場合は除去する
   detail.publisher = liList[1].firstChild.nextSibling.textContent.split(';')[0].trim();
+  // 発売日が含まれている場合は除去する
+  detail.publisher = detail.publisher.replace(/\(.+/g, '').trim();
   detail.isbn10 = liList[3].firstChild.nextSibling.textContent;
   detail.isbn13 = liList[4].firstChild.nextSibling.textContent.replace(/\s|-/g,'');
   detail.date = liList[5].firstChild.nextSibling.textContent;
@@ -142,6 +144,16 @@ function searchBook(bookDetail) {
 
   bookInfo.publisher = bookDetail.publisher;
   bookInfo.isbn13 = bookDetail.isbn13;
+  bookInfo.date = bookDetail.date;
+  if (bookInfo.publisher == 'オライリージャパン') {
+    bookInfo.url = 'http://www.oreilly.co.jp/books/' + bookDetail.isbn13 + '/'
+  } else if (bookInfo.publisher == '技術評論社') {
+    let year = bookInfo.date.split('/')[0].trim();
+    let isbn13 = '978-4-297-' + bookInfo.isbn13.slice(7, 12) + '-' + bookInfo.isbn13.slice(12, 13);
+    bookInfo.url = 'https://gihyo.jp/dp/ebook/' + year + '/' + isbn13 + '/'
+  } else {
+    console.log('undefined publisher:' + bookInfo.publisher);
+  }
 
   return bookInfo;
 }
