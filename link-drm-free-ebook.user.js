@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Link DRM free ebook
 // @namespace    http://github.com/thaim/link-drm-free-ebook
-// @version      0.2
+// @version      0.3
 // @description  UserScript to add a link to DRM free ebook site from amazon.com
 // @author       thaim
 // @match        https://www.amazon.co.jp/*
@@ -15,11 +15,12 @@
   if (!isBook(document)) {
     return;
   }
+  let isEbookPage = document.getElementById('dp').classList.contains('ebooks');
 
   // 対象の書籍情報を取得
   var bookTable = document.getElementById('detail_bullets_id');
   // 現在開いているのが電子書籍のページの場合は紙書籍のページ情報を取得して渡す
-  if (document.getElementById('dp').classList.contains('ebooks')) {
+  if (isEbookPage) {
     let url = document.getElementById('tmmSwatches').getElementsByTagName('li')[1].getElementsByTagName('a')[0].href;
 
     let client = new XMLHttpRequest();
@@ -31,7 +32,8 @@
     }
   }
 
-  var bookDescription = retreiveBook(bookTable);
+  let title = document.getElementById(isEbookPage ? 'ebooksProductTitle' : 'productTitle').textContent.trim();
+  var bookDescription = retreiveBook(title, bookTable);
 
   // 書籍情報からDRMフリー本を探す
   var bookDetail = searchBook(bookDescription)
@@ -97,7 +99,9 @@ function createEBookElement(bookDetail) {
 function createLinkElement(bookDetail) {
   var link = document.createElement('a');
   link.className = 'a-button-text';
-  link.setAttribute('href', bookDetail.url);
+  if (bookDetail.url) {
+    link.setAttribute('href', bookDetail.url);
+  }
   link.setAttribute('role', 'button');
   link.setAttribute('target', '_blank');
 
@@ -119,10 +123,12 @@ function createLinkElement(bookDetail) {
   return link;
 }
 
-function retreiveBook(table) {
+function retreiveBook(title, table) {
   var detail = [];
 
   var liList = table.getElementsByTagName('li');
+
+  detail.title = title;
   // 版情報が;区切りで挿入されている場合は除去する
   detail.publisher = liList[1].firstChild.nextSibling.textContent.split(';')[0].trim();
   // 発売日が含まれている場合は除去する
@@ -140,6 +146,7 @@ function retreiveBook(table) {
 function searchBook(bookDetail) {
   var bookInfo = [];
 
+  bookInfo.title = bookDetail.title;
   bookInfo.publisher = bookDetail.publisher;
   bookInfo.isbn13 = bookDetail.isbn13;
   bookInfo.date = bookDetail.date;
@@ -149,6 +156,8 @@ function searchBook(bookDetail) {
     let year = bookInfo.date.split('/')[0].trim();
     let isbn13 = '978-4-297-' + bookInfo.isbn13.slice(7, 12) + '-' + bookInfo.isbn13.slice(12, 13);
     bookInfo.url = 'https://gihyo.jp/dp/ebook/' + year + '/' + isbn13 + '/'
+  } else if (bookInfo.publisher == 'マイナビ出版') {
+    bookInfo.url = 'https://book.mynavi.jp/ec/products/?topics_keyword=' + bookInfo.title;
   } else {
     console.log('undefined publisher:' + bookInfo.publisher);
   }
