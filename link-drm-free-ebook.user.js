@@ -31,7 +31,6 @@
     }
   }
 
-  // var bookDescription = retreiveBook(document.getElementById('productDetailsTable'));
   var bookDescription = retreiveBook(bookTable);
 
   // 書籍情報からDRMフリー本を探す
@@ -111,7 +110,7 @@ function createLinkElement(bookDetail) {
   secondary.className = 'a-color-secondary';
   var shop = document.createElement('span');
   shop.className = 'a-size-base a-color-secondary';
-  shop.innerHTML = 'Oreilly';
+  shop.innerHTML = bookDetail.publisher;
   secondary.appendChild(shop);
   type.appendChild(secondary);
 
@@ -126,7 +125,8 @@ function retreiveBook(table) {
   var detail = [];
 
   var liList = table.getElementsByTagName('li');
-  detail.publisher = liList[1].firstChild.nextSibling.textContent;
+  // 版情報が;区切りで挿入されている場合は無視する
+  detail.publisher = liList[1].firstChild.nextSibling.textContent.split(';')[0].trim();
   detail.isbn10 = liList[3].firstChild.nextSibling.textContent;
   detail.isbn13 = liList[4].firstChild.nextSibling.textContent.replace(/\s|-/g,'');
   detail.date = liList[5].firstChild.nextSibling.textContent;
@@ -140,6 +140,7 @@ function retreiveBook(table) {
 function searchBook(bookDetail) {
   var bookInfo = [];
 
+  bookInfo.publisher = bookDetail.publisher;
   bookInfo.isbn13 = bookDetail.isbn13;
 
   return bookInfo;
