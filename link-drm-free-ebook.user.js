@@ -113,6 +113,9 @@ function createLinkElement(bookDetail) {
   var shop = document.createElement('span');
   shop.className = 'a-size-base a-color-secondary';
   shop.innerHTML = bookDetail.publisher;
+  if (!bookDetail.url) {
+    shop.innerHTML = 'なし';
+  }
   secondary.appendChild(shop);
   type.appendChild(secondary);
 
