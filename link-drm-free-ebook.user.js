@@ -163,6 +163,9 @@ function searchBook(bookDetail) {
     bookInfo.url = 'https://book.mynavi.jp/ec/products/?topics_keyword=' + bookInfo.title;
   } else if (bookInfo.publisher == '近代科学社') {
     bookInfo.url = 'https://tatsu-zine.com/sitesearch?q=' + bookInfo.title.replace(/\s/g, '+');
+  } else if (bookInfo.publisher == 'インプレス') {
+    let simpleTitle = bookInfo.title.split(' (impress top gear')[0].split(' impress top gearシリーズ')[0].trim();
+    bookInfo.url = 'https://book.impress.co.jp/s/?q=' + simpleTitle.replace(/\s/g, '+');
   } else {
     console.log('undefined publisher:' + bookInfo.publisher);
   }
