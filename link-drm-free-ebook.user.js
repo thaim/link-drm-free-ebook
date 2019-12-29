@@ -161,6 +161,8 @@ function searchBook(bookDetail) {
     bookInfo.url = 'https://gihyo.jp/dp/ebook/' + year + '/' + isbn13 + '/'
   } else if (bookInfo.publisher == 'マイナビ出版') {
     bookInfo.url = 'https://book.mynavi.jp/ec/products/?topics_keyword=' + bookInfo.title;
+  } else if (bookInfo.publisher == '近代科学社') {
+    bookInfo.url = 'https://tatsu-zine.com/sitesearch?q=' + bookInfo.title.replace(/\s/g, '+');
   } else {
     console.log('undefined publisher:' + bookInfo.publisher);
   }
